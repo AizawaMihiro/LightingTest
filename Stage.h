@@ -41,6 +41,7 @@ public:
 private:
 	sData sTable[STAGE_HEIGHT][STAGE_WIDTH];
 	int hModels[7];
+	int hModel;
 	int mode_;//0:上げ　1:下げ　2:種類変更
 	int select_;//選択中のブロック種類
 };

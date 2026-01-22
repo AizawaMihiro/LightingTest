@@ -37,6 +37,9 @@
 #include "Engine/Model.h"
 #include "Stage.h"
 #include "resource.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_dx11.h"
+#include "imgui/imgui_impl_win32.h"
 
 #pragma comment(lib,"winmm.lib") //timeGetTimeを使うために必要
 
@@ -61,8 +64,6 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    DlgProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    ManuProc(HWND, UINT, WPARAM, LPARAM);
 
 /*②
 [in] hInstance
@@ -113,6 +114,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return 0;
     }
 
+    {
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGui_ImplDX11_Init(Direct3D::pDevice, Direct3D::pContext);
+		ImGui_ImplWin32_Init(hWnd);
+		ImGui::StyleColorsLight();
+    }
+
 	//int angle = 0;
 
     Input::Initialize(hWnd);
@@ -125,8 +135,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	pRootJob = new RootJob(nullptr);
 	pRootJob->Initialize();
 
-	HWND hDialog = CreateDialog(hInst, MAKEINTRESOURCE(IDD_DIALOG2), hWnd, ManuProc);
-	ShowWindow(hDialog, SW_SHOW);
 
     if (FAILED(hr))
     {
@@ -186,12 +194,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			pRootJob->DrawSub();
 
 			Direct3D::EndDraw();
-
-            if (Input::IsKeyDown(DIK_D))
-            {
-                HWND hdialog = CreateDialog(hInst, MAKEINTRESOURCE(IDD_DIALOG2), hWnd, DlgProc);
-                ShowWindow(hdialog, SW_SHOW);
-            }
 
 
             if (Input::IsKeyDown(DIK_ESCAPE))
@@ -346,6 +348,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //wParam・lParam...追加情報のパラメータ
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	//imGui用のメッセージハンドラを最初に呼ぶ
+    if (ImGui_ImplWin32_WndProcHandler(hWnd,message,wParam,lParam))
+    {
+		return true;
+    }
+
     switch (message)//送られたメッセージで処理を分岐
     {
     case WM_COMMAND:
@@ -415,15 +423,4 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
-}
-
-// ダイアログプロシージャ
-INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	return ((Stage*)pRootJob->FindObject("Stage"))->localProc(hDlg, message, wParam, lParam);
-}
-
-INT_PTR CALLBACK ManuProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    return ((Stage*)pRootJob->FindObject("Stage"))->manuProc(hDlg, message, wParam, lParam);
 }

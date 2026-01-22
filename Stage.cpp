@@ -4,6 +4,10 @@
 #include "resource.h"
 #include "Engine/Input.h"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_dx11.h"
+#include "imgui/imgui_impl_win32.h"
+
 Stage::Stage(GameObject* parent)
 	:GameObject(parent, "Stage"), mode_(0), select_(0)
 {
@@ -22,20 +26,23 @@ Stage::~Stage()
 
 void Stage::Initialize()
 {
-	std::vector<string> modelNames = {
-		"GlassCube.fbx",
-		"GreenCube.fbx",
-		"SandCube.fbx",
-		"WaterCube.fbx",
-		"WoodenCube.fbx",
-		"StoneCube.fbx",
-		"BrickCube.fbx"
-	};
-	for (int i = 0; i < modelNames.size(); i++)
-	{
-		hModels[i] = Model::Load(modelNames[i]);
-		assert(hModels[i] >= 0);
-	}
+	//std::vector<string> modelNames = {
+	//	"GlassCube.fbx",
+	//	"GreenCube.fbx",
+	//	"SandCube.fbx",
+	//	"WaterCube.fbx",
+	//	"WoodenCube.fbx",
+	//	"StoneCube.fbx",
+	//	"BrickCube.fbx"
+	//};
+	//for (int i = 0; i < modelNames.size(); i++)
+	//{
+	//	hModels[i] = Model::Load(modelNames[i]);
+	//	assert(hModels[i] >= 0);
+	//}
+
+	std::string modelName = "Room.fbx";
+	hModel = Model::Load(modelName);
 }
 
 void Stage::Update()
@@ -52,39 +59,43 @@ void Stage::Update()
 
 void Stage::Draw()
 {
-	Transform position;
-	for (int y = 0; y < 15; y++)
-	{
-		for (int x = 0; x < 15; x++)
-		{
-			int DrawModel = hModels[sTable[y][x].type];
-			position.position_.x = x * BLOCK_SIZE;
-			position.position_.y = sTable[y][x].height * BLOCK_SIZE;
-			position.position_.z = y * BLOCK_SIZE;
-			Model::SetTransform(DrawModel, position);
-			Model::Draw(DrawModel);
-		}
-	}
-	//Transform t;
-	//t.position_.x = 0.0f;
-	//t.position_.y = 0.0f;
-	//t.position_.z = 0.0f;
-	//t.scale_ = { 0.95,0.95,0.95 };
-	//int type = TYPE_WATER;
-
-	//Model::SetTransform(hModels[type], t);
-	//Model::Draw(hModels[type]);
-	//RayCastData rayData{
-	//	{0.0f,0.0f,5.0f,0.0f},//startPos
-	//	{0.0f,-1.0f,0.0f,0.0f},//dir
-	//	false,//isHit
-	//	0.0f//dist
-	//};
-	//Model::RayCast(hModels[type], rayData);
-	//if (rayData.isHit)
+	//Transform position;
+	//for (int y = 0; y < 15; y++)
 	//{
-	//	MessageBoxA(NULL, "Hit!", "RayCast", MB_OK);
+	//	for (int x = 0; x < 15; x++)
+	//	{
+	//		int DrawModel = hModels[sTable[y][x].type];
+	//		position.position_.x = x * BLOCK_SIZE;
+	//		position.position_.y = sTable[y][x].height * BLOCK_SIZE;
+	//		position.position_.z = y * BLOCK_SIZE;
+	//		Model::SetTransform(DrawModel, position);
+	//		Model::Draw(DrawModel);
+	//	}
 	//}
+	 
+	Transform t;
+	t.position_.x = 0.0f;
+	t.position_.y = 0.0f;
+	t.position_.z = 0.0f;
+	t.scale_ = { 0.95,0.95,0.95 };
+
+	Model::Draw(hModel);
+	RayCastData rayData{
+		{0.0f,0.0f,5.0f,0.0f},//startPos
+		{0.0f,-1.0f,0.0f,0.0f},//dir
+		false,//isHit
+		0.0f//dist
+	};
+	Model::RayCast(hModel, rayData);
+	if (rayData.isHit)
+	{
+		MessageBoxA(NULL, "Hit!", "RayCast", MB_OK);
+	}
+
+	ImGui::Begin("Stage Manu");
+	ImGui::Text("Modelhandle:",hModel);
+	ImGui::End();
+
 }
 
 void Stage::Release()

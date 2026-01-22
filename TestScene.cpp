@@ -43,8 +43,8 @@ void TestScene::Update()
 
 void TestScene::Draw()
 {
-	Model::SetTransform(hModel_, transform_);
-	Model::Draw(hModel_);
+	//Model::SetTransform(hModel_, transform_);
+	//Model::Draw(hModel_);
 }
 
 void TestScene::Release()
