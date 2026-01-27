@@ -30,6 +30,7 @@ namespace Direct3D
     ID3D11RasterizerState* pRasterizerState = nullptr;	//ラスタライザー
 
 	SHADER_BUMDLE shaderBundle[SHADER_MAX];	//シェーダーのバンドル
+	DirectX::XMFLOAT4 lightPos = { 0.0f, 10.0f, -10.0f, 1.0f }; //ライトの位置
 }
 
 //初期化
@@ -316,4 +317,14 @@ void Direct3D::Release()
     SAFE_RELEASE(pSwapChain);
     SAFE_RELEASE(pContext);
     SAFE_RELEASE(pDevice);
+}
+
+DirectX::XMFLOAT4 Direct3D::GetLightPos()
+{
+	return Direct3D::lightPos;
+}
+
+void Direct3D::SetLightPos(DirectX::XMFLOAT4 pos)
+{
+	Direct3D::lightPos = pos;
 }

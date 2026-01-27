@@ -18,6 +18,9 @@ namespace Camera
 	//視点（カメラの位置）を設定
 	void SetPosition(XMVECTOR position);
 
+	//視点（カメラの位置）を取得
+	XMVECTOR GetPosition();
+
 	//焦点（見る位置）を設定
 	void SetTarget(XMVECTOR target);
 

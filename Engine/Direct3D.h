@@ -1,6 +1,8 @@
 #pragma once
+#include <Windows.h>
 #include <d3d11.h>
 #include <assert.h>
+#include <DirectXMath.h>
 
 //ƒŠƒ“ƒJ
 #pragma comment(lib,"d3d11.lib")
@@ -39,5 +41,9 @@ namespace Direct3D
 
 	//‰ð•ú
 	void Release();
+
+	DirectX::XMFLOAT4 GetLightPos();
+
+	void SetLightPos(DirectX::XMFLOAT4 pos);
 };
 

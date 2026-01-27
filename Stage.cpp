@@ -3,13 +3,14 @@
 #include<vector>
 #include "resource.h"
 #include "Engine/Input.h"
+#include "Engine/Direct3D.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
 
 Stage::Stage(GameObject* parent)
-	:GameObject(parent, "Stage"), mode_(0), select_(0)
+	:GameObject(parent, "Stage"), mode_(0), select_(0), pConstantBuffer_(nullptr)
 {
 	for (int y = 0; y < 15; y++)
 	{
@@ -72,6 +73,11 @@ void Stage::Draw()
 	//		Model::Draw(DrawModel);
 	//	}
 	//}
+
+	//コンスタントバッファの更新
+	Direct3D::pContext->VSSetConstantBuffers(1, 1, &pConstantBuffer_);//頂点シェーダー用
+	Direct3D::pContext->PSSetConstantBuffers(1, 1, &pConstantBuffer_);//ピクセルシェーダー用
+
 	 
 	Transform t;
 	t.position_.x = 0.0f;
@@ -161,4 +167,19 @@ BOOL Stage::manuProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return FALSE;
+}
+
+void Stage::InitConstantBuffer()
+{
+	D3D11_BUFFER_DESC cb;
+	cb.ByteWidth = sizeof(CONSTANTBUFFER_STAGE);
+	cb.Usage = D3D11_USAGE_DYNAMIC;
+	cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cb.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cb.MiscFlags = 0;
+	cb.StructureByteStride = 0;
+
+	//コンスタントバッファの生成
+	HRESULT hr;
+	hr = Direct3D::pDevice->CreateBuffer(&cb, nullptr, &pConstantBuffer_);
 }

@@ -28,11 +28,12 @@ class Fbx
 	struct CONSTANT_BUFFER
 	{
 		XMMATRIX	matWVP;
+		XMMATRIX	matWorld;
 		XMMATRIX	matNormal;
 		XMFLOAT4	diffuse;//ÞŽ¿‚ÌŠgŽU”½ŽËŒõ¬•ª
 		XMFLOAT4	diffuseFactor;//ŠgŽU”½ŽËŒõ‚Ì‹­‚³
 		XMFLOAT4	specular;//ÞŽ¿‚Ì‹¾–Ê”½ŽËŒõ¬•ª
-		//XMFLOAT4	specular;//‹¾–Ê”½ŽËŒõ
+		XMFLOAT4	shininess;//‹¾–Ê”½ŽË‚Ì‰s‚³
 		XMFLOAT4	ambient;//ÞŽ¿‚ÌŠÂ‹«Œõ¬•ª
 		BOOL	materialFlag;	//ƒ}ƒeƒŠƒAƒ‹‚ª‚ ‚é‚©‚Ç‚¤‚©
 	};

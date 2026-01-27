@@ -104,7 +104,12 @@ void Fbx::Draw(Transform& transform)
 			cb.diffuse = pMaterialList_[i].diffuse;
 		}
 		//コンスタントバッファにデータ転送
-		
+		cb.ambient = pMaterialList_[i].ambient;
+		cb.specular = pMaterialList_[i].specular;
+		cb.shininess = XMFLOAT4(pMaterialList_[i].shininess, pMaterialList_[i].shininess, pMaterialList_[i].shininess, pMaterialList_[i].shininess);
+		cb.diffuseFactor = pMaterialList_[i].factor;
+
+
 
 		D3D11_MAPPED_SUBRESOURCE pdata;
 		Direct3D::pContext->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのリソースアクセスを一時止める
@@ -311,9 +316,9 @@ void Fbx::InitMaterial(FbxNode* pNode)
 		//マテリアル情報を格納
 		pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], (float)factor);
 		pMaterialList_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
-		//pMaterialList_[i].specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		//pMaterialList_[i].shininess = (float)pPhong->Shininess;
-		//pMaterialList_[i].factor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		pMaterialList_[i].specular = XMFLOAT4((float)pPhong->SpecularFactor, (float)pPhong->SpecularFactor, (float)pPhong->SpecularFactor, 1.0f);
+		pMaterialList_[i].shininess = (float)pPhong->Shininess;
+		pMaterialList_[i].factor = XMFLOAT4((float)factor, (float)factor, (float)factor, (float)factor);
 	}
 
 }

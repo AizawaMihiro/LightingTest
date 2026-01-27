@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/GameObject.h"
 #include <Windows.h>
+#include <d3d11.h>
 
 enum BROCKTYPE
 {
@@ -18,6 +19,12 @@ namespace {
 	const int STAGE_HEIGHT = 15;
 	const int BLOCK_SIZE = 1;
 }
+
+struct CONSTANTBUFFER_STAGE
+{
+	XMFLOAT4 lightPos;//ライトの位置
+	XMFLOAT4 eyePos;//視点の位置
+};
 
 class Stage :
     public GameObject
@@ -44,5 +51,8 @@ private:
 	int hModel;
 	int mode_;//0:上げ　1:下げ　2:種類変更
 	int select_;//選択中のブロック種類
+
+	ID3D11Buffer* pConstantBuffer_;
+	void InitConstantBuffer();
 };
 
