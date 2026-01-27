@@ -103,8 +103,9 @@ void Fbx::Draw(Transform& transform)
 			cb.materialFlag = FALSE;
 			cb.diffuse = pMaterialList_[i].diffuse;
 		}
-
 		//コンスタントバッファにデータ転送
+		
+
 		D3D11_MAPPED_SUBRESOURCE pdata;
 		Direct3D::pContext->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのリソースアクセスを一時止める
 		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る
@@ -298,6 +299,21 @@ void Fbx::InitMaterial(FbxNode* pNode)
 			FbxDouble3  diffuse = pMaterial->Diffuse;
 			pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
 		}
+		FbxSurfacePhong* pPhong = (FbxSurfacePhong*)pNode->GetMaterial(i);
+		FbxDouble3 diffuse = pPhong->Diffuse;//拡散反射率
+		FbxDouble factor = pPhong->DiffuseFactor;//拡散反射強度
+		FbxDouble3 ambient = pPhong->Ambient;//環境光反射率
+		if (pPhong->GetClassId().Is(FbxSurfacePhong::ClassId))
+		{
+			FbxDouble specular = pPhong->SpecularFactor;//鏡面反射率
+			FbxDouble shininess = pPhong->Shininess;//光沢度
+		}
+		//マテリアル情報を格納
+		pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], (float)factor);
+		pMaterialList_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
+		//pMaterialList_[i].specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		//pMaterialList_[i].shininess = (float)pPhong->Shininess;
+		//pMaterialList_[i].factor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 }

@@ -346,6 +346,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //hWnd...受け取ったウィンドウのハンドル
 //massage...何が起きたか
 //wParam・lParam...追加情報のパラメータ
+
+//imGui用のメッセージハンドラの宣言
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	//imGui用のメッセージハンドラを最初に呼ぶ

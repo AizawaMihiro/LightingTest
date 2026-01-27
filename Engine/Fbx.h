@@ -29,7 +29,11 @@ class Fbx
 	{
 		XMMATRIX	matWVP;
 		XMMATRIX	matNormal;
-		XMFLOAT4	diffuse;
+		XMFLOAT4	diffuse;//Ş¿‚ÌŠgU”½ËŒõ¬•ª
+		XMFLOAT4	diffuseFactor;//ŠgU”½ËŒõ‚Ì‹­‚³
+		XMFLOAT4	specular;//Ş¿‚Ì‹¾–Ê”½ËŒõ¬•ª
+		//XMFLOAT4	specular;//‹¾–Ê”½ËŒõ
+		XMFLOAT4	ambient;//Ş¿‚ÌŠÂ‹«Œõ¬•ª
 		BOOL	materialFlag;	//ƒ}ƒeƒŠƒAƒ‹‚ª‚ ‚é‚©‚Ç‚¤‚©
 	};
 
@@ -44,6 +48,10 @@ class Fbx
 	{
 		Texture* pTexture;
 		XMFLOAT4 diffuse;
+		XMFLOAT4 ambient;
+		XMFLOAT4 specular;
+		float shininess;
+		XMFLOAT4 factor;
 	};
 
 	ID3D11Buffer* pVertexBuffer_;
