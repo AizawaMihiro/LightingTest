@@ -21,6 +21,12 @@ cbuffer global : register(b0)
     bool useTexture; //テクスチャーを使うかどうか
 };
 
+cbuffer gStage : register(b1)
+{
+    float4 lightPosisiton; //ライトの位置
+    float4 eyePosition; //カメラの位置
+};
+
 //───────────────────────────────────────
 // 頂点シェーダー出力＆ピクセルシェーダー入力データ構造体
 //───────────────────────────────────────
@@ -30,6 +36,7 @@ struct VS_OUT
     float4 spos : SV_POSITION; //スクリーン座標
     float2 uv : TEXCOORD; //UV座標
     float4 normal : NORMAL; //法線ベクトル
+    float4 eyev : POSITION1; //視線ベクトル
 };
 
 //───────────────────────────────────────
@@ -49,6 +56,8 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
     
     uv.w = 1; //w成分は0にする
     outData.uv = uv.xy; //UV座標はそのまま
+    
+    outData.eyev = eyePosition - outData.wpos;
 
     //normal = mul(normal, matNormal); //法線ベクトルをワールド・ビュー・プロジェクション行列で変換
     //normal = normalize(normal); //法線ベクトルを正規化=長さ1に)
@@ -67,17 +76,22 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
-    float4 lightDir = float4(-1, 0.5, -0.7, 0);
+    //float4 lightDir = float4(-1, 0.5, -0.7, 0);
+    float4 diffuse;
+    float4 ambientColor = ambient;
+    float4 ambientFactor = float4(0.2, 0.2, 0.2, 1.0);
+    float3 dir = normalize(lightPosisiton.xyz - inData.wpos.xyz);
+    
+    diffuse = diffuseColor * diffusefactor * clamp(dot(inData.normal.xyz, dir), 0, 1);
     float4 color;
     if (useTexture)
     {
-        color = g_texture.Sample(g_sampler, inData.uv);
+        color = g_texture.Sample(g_sampler, inData.uv) + ambientColor * ambientFactor;
     }
     else
     {
-        color = diffuseColor;
+        color = diffuse + ambientColor * ambientFactor;
     }
-    //color *= diffusefactor;
     
     return color;
 }

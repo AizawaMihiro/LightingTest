@@ -36,23 +36,16 @@ public:
 	void Update() override;
 	void Draw() override;
 	void Release() override;
-	void SetBlock(int x, int y, BROCKTYPE type, int height) {
-		sTable[y][x].type = type;
-		sTable[y][x].height = height;
-	}
-	sData& GetBlock(int x, int y) {
-		return sTable[y][x];
-	}
 	BOOL localProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	BOOL manuProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 private:
-	sData sTable[STAGE_HEIGHT][STAGE_WIDTH];
-	int hModels[7];
-	int hModel;
 	int mode_;//0:上げ　1:下げ　2:種類変更
 	int select_;//選択中のブロック種類
 
 	ID3D11Buffer* pConstantBuffer_;
 	void InitConstantBuffer();
+	int hRoom_;
+	int hDonut_;
+	int hBall_;
 };
 

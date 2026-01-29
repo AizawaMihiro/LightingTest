@@ -68,9 +68,6 @@ void Fbx::Draw(Transform& transform)
 	Direct3D::SetShader(SHADER_TYPE::SHADER_3D);
 	transform.Calclation();
 
-	CONSTANT_BUFFER cb;
-	cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
-	cb.matNormal = transform.GetWorldMatrix();
 
 	//for (int i = 0; i < materialCount_; i++)
 	//{
@@ -93,27 +90,20 @@ void Fbx::Draw(Transform& transform)
 
 	for (int i = 0; i < materialCount_; i++)
 	{
-		if (pMaterialList_[i].pTexture)
-		{
-			cb.materialFlag = TRUE;
-			cb.diffuse = XMFLOAT4(1, 1, 1, 1);
-		}
-		else
-		{
-			cb.materialFlag = FALSE;
-			cb.diffuse = pMaterialList_[i].diffuse;
-		}
+		CONSTANT_BUFFER cb;
+		cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
+		cb.matNormal = transform.GetNormalMatrix();
+		cb.matWorld = XMMatrixTranspose(transform.GetWorldMatrix());
 		//コンスタントバッファにデータ転送
 		cb.ambient = pMaterialList_[i].ambient;
 		cb.specular = pMaterialList_[i].specular;
-		cb.shininess = XMFLOAT4(pMaterialList_[i].shininess, pMaterialList_[i].shininess, pMaterialList_[i].shininess, pMaterialList_[i].shininess);
+		cb.shininess = { pMaterialList_[i].shininess, pMaterialList_[i].shininess, pMaterialList_[i].shininess, pMaterialList_[i].shininess };
 		cb.diffuseFactor = pMaterialList_[i].factor;
-
-
+		cb.materialFlag = pMaterialList_[i].pTexture != nullptr;
 
 		D3D11_MAPPED_SUBRESOURCE pdata;
 		Direct3D::pContext->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのリソースアクセスを一時止める
-		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データを値を送る
+		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データ値を送る
 		Direct3D::pContext->Unmap(pConstantBuffer_, 0);	//再開
 
 		// インデックスバッファーをセット
@@ -291,7 +281,23 @@ void Fbx::InitMaterial(FbxNode* pNode)
 			}
 			else
 			{
-
+				pMaterialList_[i].pTexture = nullptr;
+			}
+			FbxSurfacePhong* pMaterial = (FbxSurfacePhong*)pNode->GetMaterial(i);
+			FbxDouble  diffuseFactor = pMaterial->DiffuseFactor;
+			FbxDouble3 diffuseColor = pMaterial->Diffuse;
+			FbxDouble3  ambient = pMaterial->Ambient;
+			pMaterialList_[i].diffuse = XMFLOAT4((float)diffuseColor[0], (float)diffuseColor[1], (float)diffuseColor[2], 1.0f);
+			pMaterialList_[i].factor = XMFLOAT4((float)diffuseFactor, (float)diffuseFactor, (float)diffuseFactor, (float)diffuseFactor);
+			pMaterialList_[i].ambient = { (float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f };
+			//あなたはフォンのパラメータを持ってますか？
+			if (pMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
+			{
+				FbxDouble3 specular = pMaterial->Specular;
+				FbxDouble shininess = pMaterial->Shininess; //4つとも同じ値でセット
+				//ここで、自分のpMaterialList_[i]に値を設定
+				pMaterialList_[i].specular = { (float)specular[0],(float)specular[1], (float)specular[2], 1.0f };
+				pMaterialList_[i].shininess = shininess;
 			}
 		}
 		//テクスチャ無し
@@ -303,23 +309,30 @@ void Fbx::InitMaterial(FbxNode* pNode)
 			FbxSurfaceLambert* pMaterial = (FbxSurfaceLambert*)pNode->GetMaterial(i);
 			FbxDouble3  diffuse = pMaterial->Diffuse;
 			pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], 1.0f);
-		}
-		FbxSurfacePhong* pPhong = (FbxSurfacePhong*)pNode->GetMaterial(i);
-		FbxDouble3 diffuse = pPhong->Diffuse;//拡散反射率
-		FbxDouble factor = pPhong->DiffuseFactor;//拡散反射強度
-		FbxDouble3 ambient = pPhong->Ambient;//環境光反射率
-		if (pPhong->GetClassId().Is(FbxSurfacePhong::ClassId))
-		{
-			FbxDouble specular = pPhong->SpecularFactor;//鏡面反射率
-			FbxDouble shininess = pPhong->Shininess;//光沢度
+			FbxSurfacePhong* pPhong = (FbxSurfacePhong*)pNode->GetMaterial(i);
+			FbxDouble factor = pPhong->DiffuseFactor;//拡散反射強度
+			FbxDouble3 ambient = pPhong->Ambient;//環境光反射率
 
-			pMaterialList_[i].specular = XMFLOAT4((float)pPhong->SpecularFactor, (float)pPhong->SpecularFactor, (float)pPhong->SpecularFactor, 1.0f);
-			pMaterialList_[i].shininess = (float)pPhong->Shininess;
+			//マテリアル情報を格納
+			pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], (float)factor);
+			pMaterialList_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
+			pMaterialList_[i].factor = XMFLOAT4((float)factor, (float)factor, (float)factor, (float)factor);
+
+			if (pPhong->GetClassId().Is(FbxSurfacePhong::ClassId))
+			{
+				FbxDouble specular = pPhong->SpecularFactor;//鏡面反射率
+				FbxDouble shininess = pPhong->Shininess;//光沢度
+
+				pMaterialList_[i].specular = XMFLOAT4((float)pPhong->SpecularFactor, (float)pPhong->SpecularFactor, (float)pPhong->SpecularFactor, 1.0f);
+				pMaterialList_[i].shininess = (float)pPhong->Shininess;
+			}
+			else
+			{
+				pMaterialList_[i].specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+				pMaterialList_[i].shininess = 10.0f;
+			}
 		}
-		//マテリアル情報を格納
-		pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], (float)factor);
-		pMaterialList_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
-		pMaterialList_[i].factor = XMFLOAT4((float)factor, (float)factor, (float)factor, (float)factor);
+		
 	}
 
 }

@@ -2,6 +2,7 @@
 #include "Engine/Model.h"
 #include<vector>
 #include "resource.h"
+#include "Engine/Camera.h"
 #include "Engine/Input.h"
 #include "Engine/Direct3D.h"
 
@@ -12,13 +13,10 @@
 Stage::Stage(GameObject* parent)
 	:GameObject(parent, "Stage"), mode_(0), select_(0), pConstantBuffer_(nullptr)
 {
-	for (int y = 0; y < 15; y++)
-	{
-		for (int x = 0; x < 15; x++)
-		{
-			SetBlock(x, y, TYPE_DEFAULT, 0);
-		}
-	}
+
+	hRoom_ = -1;
+	hDonut_ = -1;
+	hBall_ = -1;
 }
 
 Stage::~Stage()
@@ -27,80 +25,59 @@ Stage::~Stage()
 
 void Stage::Initialize()
 {
-	//std::vector<string> modelNames = {
-	//	"GlassCube.fbx",
-	//	"GreenCube.fbx",
-	//	"SandCube.fbx",
-	//	"WaterCube.fbx",
-	//	"WoodenCube.fbx",
-	//	"StoneCube.fbx",
-	//	"BrickCube.fbx"
-	//};
-	//for (int i = 0; i < modelNames.size(); i++)
-	//{
-	//	hModels[i] = Model::Load(modelNames[i]);
-	//	assert(hModels[i] >= 0);
-	//}
+	hRoom_ = Model::Load("Room.fbx");
+	assert(hRoom_ >= 0);
+	hDonut_ = Model::Load("Donut.fbx");
+	assert(hDonut_ >= 0);
+	//hBall_ = Model::Load("Sphere.fbx");
+	//assert(hBall_ >= 0);
 
-	std::string modelName = "Donut.fbx";
-	hModel = Model::Load(modelName);
+	Camera::SetPosition(XMVectorSet(0.0f, 1.0f, -3.0f, 0.0f));
+	Camera::SetTarget(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
 }
 
 void Stage::Update()
 {
 	//transform_.rotate_.y += 2.0f;
-	for (int y = 0; y < 15; y++)
-	{
-		for (int x = 0; x < 15; x++)
-		{
-			sTable[y][x].type = (BROCKTYPE)select_;
-		}
-	}
 }
 
 void Stage::Draw()
 {
-	//Transform position;
-	//for (int y = 0; y < 15; y++)
-	//{
-	//	for (int x = 0; x < 15; x++)
-	//	{
-	//		int DrawModel = hModels[sTable[y][x].type];
-	//		position.position_.x = x * BLOCK_SIZE;
-	//		position.position_.y = sTable[y][x].height * BLOCK_SIZE;
-	//		position.position_.z = y * BLOCK_SIZE;
-	//		Model::SetTransform(DrawModel, position);
-	//		Model::Draw(DrawModel);
-	//	}
-	//}
+	transform_.rotate_.y += 1.0f;
+
+
+	CONSTANTBUFFER_STAGE cb;
+	cb.lightPos = Direct3D::GetLightPos();
+	XMStoreFloat4(&cb.eyePos, Camera::GetPosition());
+
+	//コンスタントバッファにデータ転送
+	D3D11_MAPPED_SUBRESOURCE pdata;
+	Direct3D::pContext->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのリソースアクセスを一時止める
+	memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データ値を送る
+	Direct3D::pContext->Unmap(pConstantBuffer_, 0);	//再開
 
 	//コンスタントバッファの更新
 	Direct3D::pContext->VSSetConstantBuffers(1, 1, &pConstantBuffer_);//頂点シェーダー用
 	Direct3D::pContext->PSSetConstantBuffers(1, 1, &pConstantBuffer_);//ピクセルシェーダー用
 
-	 
-	Transform t;
-	t.position_.x = 0.0f;
-	t.position_.y = 0.0f;
-	t.position_.z = 0.0f;
-	t.scale_ = { 0.95,0.95,0.95 };
 
-	Model::Draw(hModel);
-	RayCastData rayData{
-		{0.0f,0.0f,5.0f,0.0f},//startPos
-		{0.0f,-1.0f,0.0f,0.0f},//dir
-		false,//isHit
-		0.0f//dist
-	};
-	Model::RayCast(hModel, rayData);
-	if (rayData.isHit)
-	{
-		MessageBoxA(NULL, "Hit!", "RayCast", MB_OK);
-	}
+	//Model::SetTransform(hModel, t);
+	//Model::Draw(hModel);
+	//RayCastData rayData{
+	//	{0.0f,0.0f,5.0f,0.0f},//startPos
+	//	{0.0f,-1.0f,0.0f,0.0f},//dir
+	//	false,//isHit
+	//	0.0f//dist
+	//};
+	//Model::RayCast(hModel, rayData);
+	//if (rayData.isHit)
+	//{
+	//	MessageBoxA(NULL, "Hit!", "RayCast", MB_OK);
+	//}
 
-	ImGui::Begin("Stage Manu");
-	ImGui::Text("Modelhandle:",hModel);
-	ImGui::End();
+	//ImGui::Begin("Stage Manu");
+	//ImGui::Text("Modelhandle:",hModel);
+	//ImGui::End();
 
 }
 
