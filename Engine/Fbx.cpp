@@ -312,12 +312,13 @@ void Fbx::InitMaterial(FbxNode* pNode)
 		{
 			FbxDouble specular = pPhong->SpecularFactor;//‹¾–Ê”½ŽË—¦
 			FbxDouble shininess = pPhong->Shininess;//Œõ‘ò“x
+
+			pMaterialList_[i].specular = XMFLOAT4((float)pPhong->SpecularFactor, (float)pPhong->SpecularFactor, (float)pPhong->SpecularFactor, 1.0f);
+			pMaterialList_[i].shininess = (float)pPhong->Shininess;
 		}
 		//ƒ}ƒeƒŠƒAƒ‹î•ñ‚ðŠi”[
 		pMaterialList_[i].diffuse = XMFLOAT4((float)diffuse[0], (float)diffuse[1], (float)diffuse[2], (float)factor);
 		pMaterialList_[i].ambient = XMFLOAT4((float)ambient[0], (float)ambient[1], (float)ambient[2], 1.0f);
-		pMaterialList_[i].specular = XMFLOAT4((float)pPhong->SpecularFactor, (float)pPhong->SpecularFactor, (float)pPhong->SpecularFactor, 1.0f);
-		pMaterialList_[i].shininess = (float)pPhong->Shininess;
 		pMaterialList_[i].factor = XMFLOAT4((float)factor, (float)factor, (float)factor, (float)factor);
 	}
 

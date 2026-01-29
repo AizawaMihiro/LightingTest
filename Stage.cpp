@@ -42,7 +42,7 @@ void Stage::Initialize()
 	//	assert(hModels[i] >= 0);
 	//}
 
-	std::string modelName = "Room.fbx";
+	std::string modelName = "Donut.fbx";
 	hModel = Model::Load(modelName);
 }
 
