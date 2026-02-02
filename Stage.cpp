@@ -25,6 +25,7 @@ Stage::~Stage()
 
 void Stage::Initialize()
 {
+	InitConstantBuffer();
 	hRoom_ = Model::Load("Room.fbx");
 	assert(hRoom_ >= 0);
 	hDonut_ = Model::Load("Donut.fbx");
@@ -37,11 +38,6 @@ void Stage::Initialize()
 }
 
 void Stage::Update()
-{
-	//transform_.rotate_.y += 2.0f;
-}
-
-void Stage::Draw()
 {
 	transform_.rotate_.y += 1.0f;
 
@@ -59,7 +55,28 @@ void Stage::Draw()
 	//コンスタントバッファの更新
 	Direct3D::pContext->VSSetConstantBuffers(1, 1, &pConstantBuffer_);//頂点シェーダー用
 	Direct3D::pContext->PSSetConstantBuffers(1, 1, &pConstantBuffer_);//ピクセルシェーダー用
+}
 
+void Stage::Draw()
+{
+	Transform t;
+	t.position_ = { Direct3D::GetLightPos().x, Direct3D::GetLightPos().y, Direct3D::GetLightPos().z };
+	t.scale_ = { 0.1f,0.1f,0.1f };
+	//Model::SetTransform(hBall_, t);
+	//Model::Draw(hBall_);
+
+	Transform tRoom;
+	tRoom.position_ = { 0.0f,0.0f,0.0f };
+	tRoom.rotate_ = { 0.0f,0.0f,0.0f };
+	Model::SetTransform(hRoom_, tRoom);
+	Model::Draw(hRoom_);
+
+	static Transform tDonut;
+	tDonut.position_ = { 0.0f,0.5f,0.0f };
+	tDonut.scale_ = { 0.25f,0.25f,0.25f };
+	tDonut.rotate_.y += 1.0f;
+	Model::SetTransform(hDonut_, tDonut);
+	Model::Draw(hDonut_);
 
 	//Model::SetTransform(hModel, t);
 	//Model::Draw(hModel);
@@ -78,6 +95,10 @@ void Stage::Draw()
 	//ImGui::Begin("Stage Manu");
 	//ImGui::Text("Modelhandle:",hModel);
 	//ImGui::End();
+
+	ImGui::Begin("Stage Manu");
+	ImGui::Text("Stage rot: %f", tDonut.rotate_.y);
+	ImGui::End();
 
 }
 
@@ -159,4 +180,8 @@ void Stage::InitConstantBuffer()
 	//コンスタントバッファの生成
 	HRESULT hr;
 	hr = Direct3D::pDevice->CreateBuffer(&cb, nullptr, &pConstantBuffer_);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr, L"ステージ用コンスタントバッファの生成に失敗しました", L"エラー", MB_OK);
+	}
 }
