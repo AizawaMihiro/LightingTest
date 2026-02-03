@@ -82,6 +82,11 @@ float4 PS(VS_OUT inData) : SV_Target
     float4 ambientFactor = float4(0.2, 0.2, 0.2, 1.0);
     float3 dir = normalize(lightPosisiton.xyz - inData.wpos.xyz);
     
+    //åıåπÇ…Ç©Ç©ÇÌÇÈïœêî
+    float4 diffuseTerm;
+    float4 specularTerm;
+    
+    
     diffuse = diffuseColor * diffusefactor * clamp(dot(inData.normal.xyz, dir), 0, 1);
     float4 color;
     if (useTexture)

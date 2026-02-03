@@ -114,10 +114,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return 0;
     }
 
+	//ImGui初期化
     {
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGuiIO& io = ImGui::GetIO();
 		ImGui_ImplDX11_Init(Direct3D::pDevice, Direct3D::pContext);
 		ImGui_ImplWin32_Init(hWnd);
 		ImGui::StyleColorsLight();

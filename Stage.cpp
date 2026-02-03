@@ -30,8 +30,8 @@ void Stage::Initialize()
 	assert(hRoom_ >= 0);
 	hDonut_ = Model::Load("Donut.fbx");
 	assert(hDonut_ >= 0);
-	//hBall_ = Model::Load("Sphere.fbx");
-	//assert(hBall_ >= 0);
+	hBall_ = Model::Load("Bulet.fbx");
+	assert(hBall_ >= 0);
 
 	Camera::SetPosition(XMVectorSet(0.0f, 1.0f, -3.0f, 0.0f));
 	Camera::SetTarget(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
@@ -41,7 +41,41 @@ void Stage::Update()
 {
 	transform_.rotate_.y += 1.0f;
 
+	//移動できる光源を実装
+	if (Input::IsKey(DIK_A)) {
+		XMFLOAT4 pos = Direct3D::GetLightPos();
+		pos.x -= 0.01f;
+		Direct3D::SetLightPos(pos);
+	}
+	if (Input::IsKey(DIK_D)) {
+		XMFLOAT4 pos = Direct3D::GetLightPos();
+		pos.x += 0.01f;
+		Direct3D::SetLightPos(pos);
+	}
+	if (Input::IsKey(DIK_W)) {
+		XMFLOAT4 pos = Direct3D::GetLightPos();
+		pos.z += 0.01f;
+		Direct3D::SetLightPos(pos);
+	}
+	if (Input::IsKey(DIK_S)) {
+		XMFLOAT4 pos = Direct3D::GetLightPos();
+		pos.z -= 0.01f;
+		Direct3D::SetLightPos(pos);
+	}
+	if (Input::IsKey(DIK_UP))
+	{
+		XMFLOAT4 pos = Direct3D::GetLightPos();
+		pos.y += 0.01f;
+		Direct3D::SetLightPos(pos);
+	}
+	if (Input::IsKey(DIK_DOWN))
+	{
+		XMFLOAT4 pos = Direct3D::GetLightPos();
+		pos.y -= 0.01f;
+		Direct3D::SetLightPos(pos);
+	}
 
+	//コンスタントバッファ用データ作成
 	CONSTANTBUFFER_STAGE cb;
 	cb.lightPos = Direct3D::GetLightPos();
 	XMStoreFloat4(&cb.eyePos, Camera::GetPosition());
@@ -62,8 +96,8 @@ void Stage::Draw()
 	Transform t;
 	t.position_ = { Direct3D::GetLightPos().x, Direct3D::GetLightPos().y, Direct3D::GetLightPos().z };
 	t.scale_ = { 0.1f,0.1f,0.1f };
-	//Model::SetTransform(hBall_, t);
-	//Model::Draw(hBall_);
+	Model::SetTransform(hBall_, t);
+	Model::Draw(hBall_);
 
 	Transform tRoom;
 	tRoom.position_ = { 0.0f,0.0f,0.0f };
@@ -98,6 +132,9 @@ void Stage::Draw()
 
 	ImGui::Begin("Stage Manu");
 	ImGui::Text("Stage rot: %f", tDonut.rotate_.y);
+	ImGui::Text("Light Pos: X:%f", Direct3D::GetLightPos().x);
+	ImGui::Text("Light Pos: Y:%f", Direct3D::GetLightPos().y);
+	ImGui::Text("Light Pos: Z:%f", Direct3D::GetLightPos().z);
 	ImGui::End();
 
 }
