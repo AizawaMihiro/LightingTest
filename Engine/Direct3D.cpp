@@ -224,6 +224,7 @@ HRESULT Direct3D::InitShader2D()
     D3D11_INPUT_ELEMENT_DESC layout[] = {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },	//位置
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(DirectX::XMVECTOR) , D3D11_INPUT_PER_VERTEX_DATA, 0 },//UV座標
+        { "NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,sizeof(DirectX::XMVECTOR) + sizeof(DirectX::XMVECTOR),D3D11_INPUT_PER_VERTEX_DATA,0}//法線ベクトル
     };
     hr = pDevice->CreateInputLayout(layout, 2, pCompileVS->GetBufferPointer(), pCompileVS->GetBufferSize(), &(shaderBundle[SHADER_2D], pVertexLayout));
     if (FAILED(hr))

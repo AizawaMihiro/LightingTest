@@ -92,7 +92,7 @@ void Fbx::Draw(Transform& transform)
 	{
 		CONSTANT_BUFFER cb;
 		cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
-		cb.matNormal = transform.GetNormalMatrix();
+		cb.matNormal = XMMatrixTranspose(transform.GetNormalMatrix());
 		cb.matWorld = XMMatrixTranspose(transform.GetWorldMatrix());
 		//コンスタントバッファにデータ転送
 		cb.ambient = pMaterialList_[i].ambient;

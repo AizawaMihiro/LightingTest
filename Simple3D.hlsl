@@ -32,7 +32,7 @@ cbuffer gStage : register(b1)
 //───────────────────────────────────────
 struct VS_OUT
 {
-    float4 wpos : Position; //ワールド座標
+    float4 wpos : POSITION0; //ワールド座標
     float4 spos : SV_POSITION; //スクリーン座標
     float2 uv : TEXCOORD; //UV座標
     float4 normal : NORMAL; //法線ベクトル
@@ -54,10 +54,13 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
     outData.wpos = mul(pos, matWorld);
     outData.normal = mul(normal, matNormal);
     
+    normal.w = 0;//法線ベクトルの成分を0に
+    outData.normal = mul(normal, matNormal);
+    
     uv.w = 1; //w成分は0にする
     outData.uv = uv.xy; //UV座標はそのまま
     
-    outData.eyev = eyePosition - outData.wpos;
+    outData.eyev = outData.wpos - eyePosition;
 
     //normal = mul(normal, matNormal); //法線ベクトルをワールド・ビュー・プロジェクション行列で変換
     //normal = normalize(normal); //法線ベクトルを正規化=長さ1に)
@@ -83,20 +86,39 @@ float4 PS(VS_OUT inData) : SV_Target
     float3 dir = normalize(lightPosisiton.xyz - inData.wpos.xyz);
     
     //光源にかかわる変数
-    float4 diffuseTerm;
-    float4 specularTerm;
-    
+    float3 k = { 0.2f, 0.2f, 0.1f }; //環境光係数
+    float len = length(lightPosisiton.xyz - inData.wpos.xyz); //光源からの距離
+    //float dTerm = 1.0f / (k.x + k.y * len + k.z * len * len); //減衰計算
+    float dTerm = 1.0f;
+    float3 N = normalize(inData.normal.xyz); //法線ベクトル
     
     diffuse = diffuseColor * diffusefactor * clamp(dot(inData.normal.xyz, dir), 0, 1);
+    
+    float3 L = normalize(lightPosisiton.xyz - inData.wpos.xyz);//光源ベクトル
+    float ndotl = saturate(dot(N, L));
+    float spec = 0.0f;
+    if (ndotl > 0.0f)
+    {
+        float3 R = reflect(L, N);//正反射ベクトル
+        float3 V = normalize(inData.eyev.xyz);//正規化視線ベクトル
+        spec = pow(saturate(dot(R, V)), 32.0) * ndotl;
+    }
+    float4 specularCol = specular * spec;
+    
+    float4 diffuseTerm;
+    float4 specularTerm = specularCol * dTerm;
+    float4 ambientTerm;
     float4 color;
     if (useTexture)
     {
-        color = g_texture.Sample(g_sampler, inData.uv) + ambientColor * ambientFactor;
+        diffuseTerm = diffuse * g_texture.Sample(g_sampler,inData.uv);
+        ambientTerm = ambientFactor * g_texture.Sample(g_sampler, inData.uv);
     }
     else
     {
-        color = diffuse + ambientColor * ambientFactor;
+        diffuseTerm = diffuse;
+        ambientTerm = ambientFactor * diffuseColor;
     }
-    
+    color = diffuseTerm + specularTerm + ambientTerm;
     return color;
 }
