@@ -30,11 +30,11 @@ void Stage::Initialize()
 	assert(hRoom_ >= 0);
 	hDonut_ = Model::Load("Donut.fbx");
 	assert(hDonut_ >= 0);
-	hBall_ = Model::Load("Bulet.fbx");
+	hBall_ = Model::Load("Ball.fbx");
 	assert(hBall_ >= 0);
 
-	Camera::SetPosition(XMVectorSet(0.0f, 1.0f, -3.0f, 0.0f));
-	Camera::SetTarget(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f));
+	Camera::SetPosition(XMVectorSet(0.0f, 0.0f, -3.0f, 0.0f));
+	Camera::SetTarget(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f));
 }
 
 void Stage::Update()
@@ -101,12 +101,13 @@ void Stage::Draw()
 
 	Transform tRoom;
 	tRoom.position_ = { 0.0f,0.0f,0.0f };
-	tRoom.rotate_ = { 0.0f,0.0f,0.0f };
+	tRoom.scale_ = { 1.5f,1.5f,1.5f };
+	tRoom.rotate_ = { 0.0f,180.0f,0.0f };
 	Model::SetTransform(hRoom_, tRoom);
 	Model::Draw(hRoom_);
 
 	static Transform tDonut;
-	tDonut.position_ = { 0.0f,0.5f,0.0f };
+	tDonut.position_ = { 0.0f,0.0f,0.0f };
 	tDonut.scale_ = { 0.25f,0.25f,0.25f };
 	tDonut.rotate_.y += 1.0f;
 	Model::SetTransform(hDonut_, tDonut);
@@ -131,10 +132,13 @@ void Stage::Draw()
 	//ImGui::End();
 
 	ImGui::Begin("Stage Manu");
-	ImGui::Text("Stage rot: %f", tDonut.rotate_.y);
+	ImGui::Text("Donut rot: %f", tDonut.rotate_.y);
 	ImGui::Text("Light Pos: X:%f", Direct3D::GetLightPos().x);
 	ImGui::Text("Light Pos: Y:%f", Direct3D::GetLightPos().y);
 	ImGui::Text("Light Pos: Z:%f", Direct3D::GetLightPos().z);
+	ImGui::Text("Room Pos: X:%f", tRoom.position_.x);
+	ImGui::Text("Room Pos: Y:%f", tRoom.position_.y);
+	ImGui::Text("Room Pos: Z:%f", tRoom.position_.z);
 	ImGui::End();
 
 }
