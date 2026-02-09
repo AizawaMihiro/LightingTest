@@ -104,9 +104,9 @@ void Fbx::Draw(Transform& transform)
 	for (int i = 0; i < materialCount_; i++)
 	{
 		CONSTANT_BUFFER cb;
-		cb.matWVP = XMMatrixTranspose(transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
-		cb.matNormal = XMMatrixTranspose(transform.GetNormalMatrix());
-		cb.matWorld = XMMatrixTranspose(transform.GetWorldMatrix());
+		cb.matWVP = transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix();
+		cb.matNormal = transform.GetNormalMatrix();
+		cb.matWorld = transform.GetWorldMatrix();
 		//コンスタントバッファにデータ転送
 		cb.ambient = pMaterialList_[i].ambient;
 		cb.specular = pMaterialList_[i].specular;

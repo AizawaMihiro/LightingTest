@@ -10,9 +10,9 @@ SamplerState g_sampler : register(s0); //サンプラー
 //───────────────────────────────────────
 cbuffer global : register(b0)
 {
-    float4x4 matWVP; // ワールド・ビュー・プロジェクションの合成行列
-    float4x4 matWorld; // ワールド行列
-    float4x4 matNormal;  //法線ベクトル変換行列
+    row_major float4x4 matWVP; // ワールド・ビュー・プロジェクションの合成行列
+    row_major float4x4 matWorld; // ワールド行列
+    row_major float4x4 matNormal; //法線ベクトル変換行列
     float4 diffuseColor; //デフューズカラー
     float4 diffusefactor; //デフューズファクター
     float4 specular; //スペキュラカラー
@@ -52,12 +52,11 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
     outData.spos = mul(pos, matWVP);
     //ワールド座標もピクセルシェーダーへ
     outData.wpos = mul(pos, matWorld);
-    outData.normal = mul(normal, matNormal);
     
     normal.w = 0;//法線ベクトルの成分を0に
     outData.normal = mul(normal, matNormal);
     
-    uv.w = 1; //w成分は0にする
+    uv.w = 0; //w成分は0にする
     outData.uv = uv.xy; //UV座標はそのまま
     
     outData.eyev = outData.wpos - eyePosition;
@@ -82,17 +81,17 @@ float4 PS(VS_OUT inData) : SV_Target
     //float4 lightDir = float4(-1, 0.5, -0.7, 0);
     float4 diffuse;
     float4 ambientColor = ambient;
-    float4 ambientFactor = float4(0.2, 0.2, 0.2, 1.0);
+    float4 ambientFactor = float4(0.2, 0.2, 0.2, 1.0);//ここ変更すると暗くなりすぎるので後回し
     float3 dir = normalize(lightPosisiton.xyz - inData.wpos.xyz);
     
     //光源にかかわる変数
     float3 k = { 0.2f, 0.2f, 0.1f }; //環境光係数
     float len = length(lightPosisiton.xyz - inData.wpos.xyz); //光源からの距離
-    //float dTerm = 1.0f / (k.x + k.y * len + k.z * len * len); //減衰計算
-    float dTerm = 1.0f;
-    float3 N = normalize(inData.normal.xyz); //法線ベクトル
+    float dTerm = 1.0f / (k.x + k.y * len + k.z * len * len); //減衰計算
+    //float dTerm = 1.0f;
     
-    diffuse = diffuseColor * diffusefactor * clamp(dot(inData.normal.xyz, dir), 0, 1);
+    float3 N = normalize(inData.normal.xyz); //法線ベクトル
+    diffuse = diffuseColor * diffusefactor * clamp(dot(N, dir), 0, 1) * dTerm;
     
     float3 L = normalize(lightPosisiton.xyz - inData.wpos.xyz);//光源ベクトル
     float ndotl = saturate(dot(N, L));
@@ -116,7 +115,7 @@ float4 PS(VS_OUT inData) : SV_Target
     }
     else
     {
-        diffuseTerm = diffuse;
+        diffuseTerm = diffuse * dTerm;
         ambientTerm = ambientFactor * diffuseColor;
     }
     color = diffuseTerm + specularTerm + ambientTerm;

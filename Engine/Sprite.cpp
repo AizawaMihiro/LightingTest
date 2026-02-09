@@ -92,7 +92,7 @@ void Sprite::Draw(XMMATRIX& worldMatrix)
 	Direct3D::SetShader(SHADER_TYPE::SHADER_2D);
 	CONSTANT_BUFFER cb;
 	//cb.matWVP = XMMatrixTranspose(worldMatrix * Camera::GetViewMatrix() * Camera::GetProjectionMatrix());
-	cb.matWorld = XMMatrixTranspose(worldMatrix);
+	cb.matWorld = worldMatrix;
 
 	D3D11_MAPPED_SUBRESOURCE pdata;
 	Direct3D::pContext->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのリソースアクセスを一時止める
