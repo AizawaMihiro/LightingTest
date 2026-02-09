@@ -47,5 +47,6 @@ private:
 	int hRoom_;
 	int hDonut_;
 	int hBall_;
+	int hFloor_;
 };
 

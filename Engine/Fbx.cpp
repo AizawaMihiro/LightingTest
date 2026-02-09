@@ -40,6 +40,19 @@ HRESULT Fbx::Load(std::string fileName)
 	fbxImporter->Import(pFbxScene);
 	fbxImporter->Destroy();
 
+	FbxAxisSystem sceneAxisSystem = pFbxScene->GetGlobalSettings().GetAxisSystem();
+	FbxAxisSystem myAxisSystem(FbxAxisSystem::DirectX);
+
+	if (sceneAxisSystem != myAxisSystem)
+	{
+		myAxisSystem.DeepConvertScene(pFbxScene);
+	}
+	FbxSystemUnit sceneSystemUnit = pFbxScene->GetGlobalSettings().GetSystemUnit();
+	if (sceneSystemUnit != FbxSystemUnit::cm)
+	{
+		FbxSystemUnit::cm.ConvertScene(pFbxScene);
+	}
+
 	//ƒƒbƒVƒ…î•ñ‚ðŽæ“¾
 	FbxNode* rootNode = pFbxScene->GetRootNode();
 	FbxNode* pNode = rootNode->GetChild(0);
