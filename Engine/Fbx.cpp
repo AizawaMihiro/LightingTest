@@ -184,6 +184,17 @@ void Fbx::InitVertex(FbxMesh* mesh)
 			pVertices_[index].normal = XMVectorSet((float)normal[0], (float)normal[1], (float)normal[2], 0.0f);
 		}
 	}
+
+	for (int i = 0; i < polygonCount_; i++)
+	{
+		int startIndex = mesh->GetPolygonVertexIndex(i);
+		FbxVector4 tangent = mesh->GetElementTangent(0)->GetDirectArray().GetAt(startIndex);
+		for (int j = 0; j < 3; j++)
+		{
+			int index = mesh->GetPolygonVertices()[startIndex + j];
+			pVertices_[index].tangent = XMVectorSet((float)tangent[0], (float)tangent[1], (float)tangent[2], 0.0f);
+		}
+	}
 	// 頂点データ用バッファの設定
 	D3D11_BUFFER_DESC bd_vertex;
 	bd_vertex.ByteWidth = sizeof(VERTEX)*vertexCount_;

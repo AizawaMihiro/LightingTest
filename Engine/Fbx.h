@@ -43,6 +43,8 @@ class Fbx
 		XMVECTOR position;
 		XMVECTOR uv;
 		XMVECTOR normal;
+		XMVECTOR tangent;
+		XMVECTOR binormal;
 	};
 
 	struct MATERIAL
