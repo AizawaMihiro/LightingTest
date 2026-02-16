@@ -111,6 +111,7 @@ void Fbx::Draw(Transform& transform)
 		cb.ambient = pMaterialList_[i].ambient;
 		cb.specular = pMaterialList_[i].specular;
 		cb.shininess = { pMaterialList_[i].shininess, pMaterialList_[i].shininess, pMaterialList_[i].shininess, pMaterialList_[i].shininess };
+		cb.diffuse = pMaterialList_[i].diffuse;
 		cb.diffuseFactor = pMaterialList_[i].factor;
 		cb.materialFlag = pMaterialList_[i].pTexture != nullptr;
 
@@ -156,6 +157,9 @@ void Fbx::InitVertex(FbxMesh* mesh)
 	//VERTEX* vertices = new VERTEX[vertexCount_];
 	pVertices_.resize(vertexCount_);
 
+	//tangentの確認
+	FbxLayerElementTangent* tangentElement = mesh->GetElementTangent();
+
 	//全ポリゴン
 	for (DWORD poly = 0; poly < polygonCount_; poly++)
 	{
@@ -182,19 +186,39 @@ void Fbx::InitVertex(FbxMesh* mesh)
 			mesh->GetPolygonVertexNormal(poly, vertex, normal);
 			//vertices[index].normal = XMVectorSet((float)normal[0], (float)normal[1], (float)normal[2], 0.0f);
 			pVertices_[index].normal = XMVectorSet((float)normal[0], (float)normal[1], (float)normal[2], 0.0f);
+
+			if (tangentElement!= nullptr)
+			{
+				int tangentIndex = 0;
+				//接点ごとに接線の情報があるか
+				if (tangentElement->GetReferenceMode() == FbxGeometryElement::eDirect)
+				{
+					tangentIndex = poly * 3 + vertex;
+				}
+				//頂点ごとに接線の情報が無い場合、ポリゴンごとに接線の情報があるか
+				if (tangentElement->GetReferenceMode() == FbxGeometryElement::eIndexToDirect)
+				{
+					tangentIndex = tangentElement->GetIndexArray().GetAt(tangentIndex);
+				}
+				FbxVector4 tangent = tangentElement->GetDirectArray().GetAt(tangentIndex);
+				pVertices_[index].tangent = { (float)tangent[0],(float)tangent[1] ,(float)tangent[2] ,0.0f };
+			}
+			else
+			{
+				pVertices_[index].tangent = { 0.0f,0.0f,0.0f,0.0f };
+			}
 		}
 	}
 
-	for (int i = 0; i < polygonCount_; i++)
+	for (int i = 0; i < vertexCount_; i++)
 	{
-		int startIndex = mesh->GetPolygonVertexIndex(i);
-		FbxVector4 tangent = mesh->GetElementTangent(0)->GetDirectArray().GetAt(startIndex);
-		for (int j = 0; j < 3; j++)
-		{
-			int index = mesh->GetPolygonVertices()[startIndex + j];
-			pVertices_[index].tangent = XMVectorSet((float)tangent[0], (float)tangent[1], (float)tangent[2], 0.0f);
-		}
+		XMVECTOR N = XMVector3Normalize(pVertices_[i].normal);
+		XMVECTOR T = XMVector3Normalize(pVertices_[i].tangent);
+		//従法線は外積で求める
+		XMVECTOR B = XMVector3Normalize(XMVector3Cross(N, T));
+		pVertices_[i].binormal = B;
 	}
+
 	// 頂点データ用バッファの設定
 	D3D11_BUFFER_DESC bd_vertex;
 	bd_vertex.ByteWidth = sizeof(VERTEX)*vertexCount_;

@@ -38,7 +38,7 @@ void TestScene::Update()
 	//	}
 	//}
 
-	Controller::Update();
+	//Controller::Update();
 }
 
 void TestScene::Draw()

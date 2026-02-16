@@ -42,9 +42,9 @@ class Fbx
 	{
 		XMVECTOR position;
 		XMVECTOR uv;
-		XMVECTOR normal;
-		XMVECTOR tangent;
-		XMVECTOR binormal;
+		XMVECTOR normal;//–@ü
+		XMVECTOR tangent;//Úü
+		XMVECTOR binormal;//]–@ü
 	};
 
 	struct MATERIAL

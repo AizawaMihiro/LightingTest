@@ -53,7 +53,7 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
     //ワールド座標もピクセルシェーダーへ
     outData.wpos = mul(pos, matWorld);
     
-    normal.w = 0;//法線ベクトルの成分を0に
+    normal.w = 0; //法線ベクトルの成分を0に
     outData.normal = mul(normal, matNormal);
     
     uv.w = 0; //w成分は0にする
@@ -81,7 +81,7 @@ float4 PS(VS_OUT inData) : SV_Target
     //float4 lightDir = float4(-1, 0.5, -0.7, 0);
     float4 diffuse;
     float4 ambientColor = ambient;
-    float4 ambientFactor = float4(0.1, 0.1, 0.1, 1.0);
+    float4 ambientFactor = float4(0.2, 0.2, 0.2, 1.0); //ここ変更すると暗くなりすぎるので後回し
     float3 dir = normalize(lightPosisiton.xyz - inData.wpos.xyz);
     
     //光源にかかわる変数
@@ -93,13 +93,13 @@ float4 PS(VS_OUT inData) : SV_Target
     float3 N = normalize(inData.normal.xyz); //法線ベクトル
     diffuse = diffuseColor * diffusefactor * clamp(dot(N, dir), 0, 1) * dTerm;
     
-    float3 L = normalize(lightPosisiton.xyz - inData.wpos.xyz);//光源ベクトル
+    float3 L = normalize(lightPosisiton.xyz - inData.wpos.xyz); //光源ベクトル
     float ndotl = saturate(dot(N, L));
     float spec = 0.0f;
     if (ndotl > 0.0f)
     {
-        float3 R = reflect(L, N);//正反射ベクトル
-        float3 V = normalize(inData.eyev.xyz);//正規化視線ベクトル
+        float3 R = reflect(L, N); //正反射ベクトル
+        float3 V = normalize(inData.eyev.xyz); //正規化視線ベクトル
         spec = pow(saturate(dot(R, V)), 32.0) * ndotl;
     }
     float4 specularCol = specular * spec;
@@ -110,7 +110,7 @@ float4 PS(VS_OUT inData) : SV_Target
     float4 color;
     if (useTexture)
     {
-        diffuseTerm = diffuse * g_texture.Sample(g_sampler,inData.uv);
+        diffuseTerm = diffuse * g_texture.Sample(g_sampler, inData.uv);
         ambientTerm = ambientFactor * g_texture.Sample(g_sampler, inData.uv);
     }
     else
