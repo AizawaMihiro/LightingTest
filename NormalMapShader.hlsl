@@ -2,7 +2,9 @@
 // テクスチャ＆サンプラーデータのグローバル変数定義
 //───────────────────────────────────────
 Texture2D g_texture : register(t0); //テクスチャー
+Texture2D g_normalmap : register(t1); //テクスチャー
 SamplerState g_sampler : register(s0); //サンプラー
+SamplerState g_normalSample : register(s1); //サンプラー
 
 //───────────────────────────────────────
 // コンスタントバッファ
@@ -36,13 +38,15 @@ struct VS_OUT
     float4 spos : SV_POSITION; //スクリーン座標
     float2 uv : TEXCOORD; //UV座標
     float4 normal : NORMAL; //法線ベクトル
+    float4 tangent : TANGENT;
+    float4 binormal : BINORMAL;
     float4 eyev : POSITION1; //視線ベクトル
 };
 
 //───────────────────────────────────────
 // 頂点シェーダ
 //───────────────────────────────────────
-VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
+VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL, float4 tangent: TANGENT,float4 binormal:BINORMAL)
 {
 	//ピクセルシェーダーへ渡す情報
     VS_OUT outData;
@@ -55,6 +59,12 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
     
     normal.w = 0; //法線ベクトルの成分を0に
     outData.normal = mul(normal, matNormal);
+    
+    tangent.w = 0; //接線ベクトルの成分を0に
+    outData.tangent = mul(tangent, matNormal); //転写未遂
+    
+    binormal.w = 0; //従法線ベクトルの成分を0に
+    outData.binormal = mul(binormal, matNormal); //転写未遂
     
     uv.w = 0; //w成分は0にする
     outData.uv = uv.xy; //UV座標はそのまま
@@ -78,6 +88,9 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
 //───────────────────────────────────────
 float4 PS(VS_OUT inData) : SV_Target
 {
+    //法線マップから法線を取得
+    float3 normalMap = g_normalmap.Sample(g_normalSample, inData.normal).xyz;//転写未遂
+    
     //float4 lightDir = float4(-1, 0.5, -0.7, 0);
     float4 diffuse;
     float4 ambientColor = ambient;
@@ -119,5 +132,6 @@ float4 PS(VS_OUT inData) : SV_Target
         ambientTerm = ambientFactor * diffuseColor;
     }
     color = diffuseTerm + specularTerm + ambientTerm;
-    return color;
+    //return color;
+    return normalMap;
 }

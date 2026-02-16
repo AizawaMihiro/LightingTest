@@ -50,6 +50,7 @@ class Fbx
 	struct MATERIAL
 	{
 		Texture* pTexture;
+		std::shared_ptr<Texture> pNormalTexture;
 		XMFLOAT4 diffuse;
 		XMFLOAT4 ambient;
 		XMFLOAT4 specular;
@@ -76,6 +77,7 @@ public:
 	Fbx();
 	HRESULT Load(std::string fileName);
 	void    Draw(Transform& transform);
+	void	DrawPseudoNormal(Transform& transform);
 	void    Release();
 
 	void InitVertex(FbxMesh* mesh);

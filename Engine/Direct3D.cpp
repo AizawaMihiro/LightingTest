@@ -141,6 +141,10 @@ HRESULT Direct3D::InitShader()
     {
         return E_FAIL;
     }
+    if (FAILED(InitNormalShader()))
+    {
+        return E_FAIL;
+    }
     return S_OK;
 }
 
@@ -165,13 +169,13 @@ HRESULT Direct3D::InitNormalShader()
 
     //頂点インプットレイアウト
     D3D11_INPUT_ELEMENT_DESC layout[] = {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offset[0],  D3D11_INPUT_PER_VERTEX_DATA, 0},	//位置
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offset[1] , D3D11_INPUT_PER_VERTEX_DATA, 0},//UV座標
-        { "NORMAL",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offset[2],D3D11_INPUT_PER_VERTEX_DATA, 0},//法線
-        { "TANGENT", 0,DXGI_FORMAT_R32G32B32_FLOAT,0,offset[3],D3D11_INPUT_PER_VERTEX_DATA, 0},
-        { "BINORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,offset[4],D3D11_INPUT_PER_VERTEX_DATA, 0}
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offset[0], D3D11_INPUT_PER_VERTEX_DATA, 0},//位置
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offset[1], D3D11_INPUT_PER_VERTEX_DATA, 0},//UV座標
+        { "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offset[2], D3D11_INPUT_PER_VERTEX_DATA, 0},//法線
+        { "TANGENT" , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offset[3], D3D11_INPUT_PER_VERTEX_DATA, 0},
+        { "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offset[4], D3D11_INPUT_PER_VERTEX_DATA, 0}
     };
-    hr = pDevice->CreateInputLayout(layout, 3, pCompileVS->GetBufferPointer(), pCompileVS->GetBufferSize(), &(shaderBundle[SHADER_NORMALMAP].pVertexLayout));
+    hr = pDevice->CreateInputLayout(layout, 5, pCompileVS->GetBufferPointer(), pCompileVS->GetBufferSize(), &(shaderBundle[SHADER_NORMALMAP].pVertexLayout));
     if (FAILED(hr))
     {
         MessageBox(nullptr, L"頂点インプットレイアウトの作成に失敗しました", L"エラー", MB_OK);
