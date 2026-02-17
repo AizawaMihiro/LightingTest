@@ -216,10 +216,12 @@ void Fbx::InitVertex(FbxMesh* mesh)
 {
 	//頂点情報を入れる配列
 	//VERTEX* vertices = new VERTEX[vertexCount_];
-	pVertices_.resize(vertexCount_);
+	vertexCount_ = polygonCount_ * 3;//ここ二行先生のと逆
+	pVertices_.resize(vertexCount_*3);
 
 	//tangentの確認
 	FbxLayerElementTangent* tangentElement = mesh->GetElementTangent();
+	int vIndex = 0;
 
 	//全ポリゴン
 	for (DWORD poly = 0; poly < polygonCount_; poly++)
@@ -228,25 +230,26 @@ void Fbx::InitVertex(FbxMesh* mesh)
 		for (int vertex = 0; vertex < 3; vertex++)
 		{
 			//調べる頂点の番号
-			int index = mesh->GetPolygonVertex(poly, vertex);
+			//int index = mesh->GetPolygonVertex(poly, vertex);
+			int cp = mesh->GetPolygonVertex(poly, vertex);
 
 			//頂点の位置
-			FbxVector4 pos = mesh->GetControlPointAt(index);
+			FbxVector4 pos = mesh->GetControlPointAt(cp);
 			//vertices[index].position = XMVectorSet((float)pos[0], (float)pos[1], (float)pos[2], 0.0f);
-			pVertices_[index].position = XMVectorSet((float)pos[0], (float)pos[1], (float)pos[2], 0.0f);
+			pVertices_[vIndex].position = XMVectorSet((float)pos[0], (float)pos[1], (float)pos[2], 0.0f);
 
 			//頂点のUV
 			FbxLayerElementUV* pUV = mesh->GetLayer(0)->GetUVs();
 			int uvIndex = mesh->GetTextureUVIndex(poly, vertex, FbxLayerElement::eTextureDiffuse);
 			FbxVector2  uv = pUV->GetDirectArray().GetAt(uvIndex);
 			//vertices[index].uv = XMVectorSet((float)uv.mData[0], (float)(1.0f - uv.mData[1]), 0.0f, 1.0f);
-			pVertices_[index].uv = XMVectorSet((float)uv.mData[0], (float)(1.0f - uv.mData[1]), 0.0f, 1.0f);
+			pVertices_[vIndex].uv = XMVectorSet((float)uv.mData[0], (float)(1.0f - uv.mData[1]), 0.0f, 1.0f);
 
 			//頂点の法線
 			FbxVector4 normal;
 			mesh->GetPolygonVertexNormal(poly, vertex, normal);
 			//vertices[index].normal = XMVectorSet((float)normal[0], (float)normal[1], (float)normal[2], 0.0f);
-			pVertices_[index].normal = XMVectorSet((float)normal[0], (float)normal[1], (float)normal[2], 0.0f);
+			pVertices_[vIndex].normal = XMVectorSet((float)normal[0], (float)normal[1], (float)normal[2], 0.0f);
 
 			if (tangentElement!= nullptr)
 			{
@@ -262,12 +265,13 @@ void Fbx::InitVertex(FbxMesh* mesh)
 					tangentIndex = tangentElement->GetIndexArray().GetAt(tangentIndex);
 				}
 				FbxVector4 tangent = tangentElement->GetDirectArray().GetAt(tangentIndex);
-				pVertices_[index].tangent = { (float)tangent[0],(float)tangent[1] ,(float)tangent[2] ,0.0f };
+				pVertices_[vIndex].tangent = { (float)tangent[0],(float)tangent[1] ,(float)tangent[2] ,0.0f };
 			}
 			else
 			{
-				pVertices_[index].tangent = { 0.0f,0.0f,0.0f,0.0f };
+				pVertices_[vIndex].tangent = { 0.0f,0.0f,0.0f,0.0f };
 			}
+			vIndex++;
 		}
 	}
 
@@ -322,7 +326,8 @@ void Fbx::InitIndex(FbxMesh* mesh)
 				for (DWORD vertex = 0; vertex < 3; vertex++)
 				{
 					//index[count] = mesh->GetPolygonVertex(poly, vertex);
-					index.push_back(mesh->GetPolygonVertex(poly, vertex));
+					//index.push_back(mesh->GetPolygonVertex(poly, vertex));
+					index.push_back((int)(poly * 3 + vertex));
 					//count++;
 				}
 			}
@@ -393,7 +398,7 @@ void Fbx::InitMaterial(FbxNode* pNode)
 				pMaterialList_[i].pTexture = nullptr;
 			}
 			//ノーマルマップのテクスチャも読み込む
-			fs::path normalTexturePath = "textureNormal.png";//まだ存在しないファイル
+			fs::path normalTexturePath = "NormalMap.png";//固定で読み込み
 			if (fs::is_regular_file(normalTexturePath))
 			{
 				pMaterialList_[i].pNormalTexture = new Texture;

@@ -61,12 +61,12 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL, f
     outData.normal = mul(normal, matNormal);
     
     tangent.w = 0; //接線ベクトルの成分を0に
-    outData.tangent = mul(tangent, matNormal); //転写未遂
+    outData.tangent = mul(tangent, matNormal);
     
     binormal.w = 0; //従法線ベクトルの成分を0に
-    outData.binormal = mul(binormal, matNormal); //転写未遂
+    outData.binormal = mul(binormal, matNormal);
     
-    uv.w = 0; //w成分は0にする
+    //uv.w = 0; //w成分は0にする
     outData.uv = uv.xy; //UV座標はそのまま
     
     outData.eyev = outData.wpos - eyePosition;
@@ -89,7 +89,13 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL, f
 float4 PS(VS_OUT inData) : SV_Target
 {
     //法線マップから法線を取得
-    float3 normalMap = g_normalmap.Sample(g_normalSample, inData.normal).xyz;//転写未遂
+    float3 normalMap = g_normalmap.Sample(g_normalSample, inData.uv).xyz;//転写未遂
+    
+    float3 T = normalize(inData.tangent.xyz);
+    float3 B = normalize(inData.binormal.xyz);
+    float3 N = normalize(inData.normal.xyz);
+    float3x3 TBN = float3x3(T, B, N);
+    float3 wNormal = mul(normalMap, TBN); //ワールド空間の法線ベクトルを計算
     
     //float4 lightDir = float4(-1, 0.5, -0.7, 0);
     float4 diffuse;
@@ -103,15 +109,14 @@ float4 PS(VS_OUT inData) : SV_Target
     float dTerm = 1.0f / (k.x + k.y * len + k.z * len * len); //減衰計算
     //float dTerm = 1.0f;
     
-    float3 N = normalize(inData.normal.xyz); //法線ベクトル
-    diffuse = diffuseColor * diffusefactor * clamp(dot(N, dir), 0, 1) * dTerm;
+    diffuse = diffuseColor * diffusefactor * clamp(dot(wNormal, dir), 0, 1) * dTerm;
     
     float3 L = normalize(lightPosisiton.xyz - inData.wpos.xyz); //光源ベクトル
-    float ndotl = saturate(dot(N, L));
+    float ndotl = saturate(dot(wNormal, L));
     float spec = 0.0f;
     if (ndotl > 0.0f)
     {
-        float3 R = reflect(L, N); //正反射ベクトル
+        float3 R = reflect(L, wNormal); //正反射ベクトル
         float3 V = normalize(inData.eyev.xyz); //正規化視線ベクトル
         spec = pow(saturate(dot(R, V)), 32.0) * ndotl;
     }
@@ -132,6 +137,5 @@ float4 PS(VS_OUT inData) : SV_Target
         ambientTerm = ambientFactor * diffuseColor;
     }
     color = diffuseTerm + specularTerm + ambientTerm;
-    //return color;
-    return normalMap;
+    return color;
 }

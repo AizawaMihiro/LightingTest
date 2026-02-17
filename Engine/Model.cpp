@@ -44,6 +44,11 @@ void Model::Draw(int hModel)
 	modelList[hModel]->pFbx_->Draw(modelList[hModel]->transform_);
 }
 
+void Model::DrawPseudoNormal(int hModel)
+{
+	modelList[hModel]->pFbx_->Draw(modelList[hModel]->transform_);
+}
+
 void Model::Release()
 {
 	bool isReffered = false;//QÆ‚³‚ê‚Ä‚¢‚é‚©‚Ç‚¤‚©

@@ -50,7 +50,7 @@ class Fbx
 	struct MATERIAL
 	{
 		Texture* pTexture;
-		std::shared_ptr<Texture> pNormalTexture;
+		Texture* pNormalTexture;
 		XMFLOAT4 diffuse;
 		XMFLOAT4 ambient;
 		XMFLOAT4 specular;
