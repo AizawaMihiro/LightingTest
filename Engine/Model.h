@@ -15,6 +15,7 @@ namespace Model
 	void SetTransform(int hModel, Transform transform);
 	void Draw(int hModel);
 	void DrawPseudoNormal(int hModel);
+	void DrawToon(int hModel);
 	void Release();
 
 	void RayCast(int hModel, RayCastData& rayData);

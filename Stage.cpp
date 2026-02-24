@@ -114,13 +114,13 @@ void Stage::Draw()
 	tDonut.scale_ = { 0.5f,0.5f,0.5f };
 	tDonut.rotate_.y += 1.0f;
 	Model::SetTransform(hDonut_, tDonut);
-	Model::Draw(hDonut_);
+	Model::DrawToon(hDonut_);
 
-	Transform tFloor;
-	tFloor.position_ = { 0.0f,0.1f,0.0f };
-	tFloor.scale_ = { 0.5f,0.5f,0.5f };
-	Model::SetTransform(hFloor_, tFloor);
-	Model::Draw(hFloor_);
+	//Transform tFloor;
+	//tFloor.position_ = { 0.0f,0.1f,0.0f };
+	//tFloor.scale_ = { 0.5f,0.5f,0.5f };
+	//Model::SetTransform(hFloor_, tFloor);
+	//Model::Draw(hFloor_);
 
 	//Model::SetTransform(hModel, t);
 	//Model::Draw(hModel);

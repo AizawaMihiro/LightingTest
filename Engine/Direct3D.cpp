@@ -145,6 +145,10 @@ HRESULT Direct3D::InitShader()
     {
         return E_FAIL;
     }
+    if (FAILED(InitToonShader()))
+    {
+        return E_FAIL;
+    }
     return S_OK;
 }
 
@@ -210,6 +214,61 @@ HRESULT Direct3D::InitNormalShader()
     //pContext->IASetInputLayout(pVertexLayout);	//頂点インプットレイアウト
     //pContext->RSSetState(pRasterizerState);		//ラスタライザー
 
+    return S_OK;
+}
+
+HRESULT Direct3D::InitToonShader()
+{
+    HRESULT hr;
+
+    // 頂点シェーダの作成（コンパイル）
+    ID3DBlob* pCompileVS = nullptr;
+    D3DCompileFromFile(L"ToonShader.hlsl", nullptr, nullptr, "VS", "vs_5_0", NULL, 0, &pCompileVS, NULL);
+    assert(pCompileVS != nullptr);
+
+    hr = pDevice->CreateVertexShader(pCompileVS->GetBufferPointer(), pCompileVS->GetBufferSize(), NULL, &(shaderBundle[SHADER_TOON].pVertexShader));
+    if (FAILED(hr))
+    {
+        MessageBox(nullptr, L"頂点シェーダーの作成に失敗しました", L"エラー", MB_OK);
+        return hr;
+    }
+
+    UINT offset[] = { 0,sizeof(DirectX::XMVECTOR) ,sizeof(DirectX::XMVECTOR) * 2 };
+
+    //頂点インプットレイアウト
+    D3D11_INPUT_ELEMENT_DESC layout[] = {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offset[0],  D3D11_INPUT_PER_VERTEX_DATA, 0},	//位置
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offset[1] , D3D11_INPUT_PER_VERTEX_DATA, 0},//UV座標
+        { "NORMAL",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offset[2],D3D11_INPUT_PER_VERTEX_DATA, 0},//法線
+    };
+    hr = pDevice->CreateInputLayout(layout, 3, pCompileVS->GetBufferPointer(), pCompileVS->GetBufferSize(), &(shaderBundle[SHADER_TOON].pVertexLayout));
+    if (FAILED(hr))
+    {
+        MessageBox(nullptr, L"頂点インプットレイアウトの作成に失敗しました", L"エラー", MB_OK);
+        return hr;
+    }
+
+    SAFE_RELEASE(pCompileVS);
+
+    //ピクセルシェーダの作成（コンパイル）
+    ID3DBlob* pCompilePS = nullptr;
+    D3DCompileFromFile(L"Simple3D.hlsl", nullptr, nullptr, "PS", "ps_5_0", NULL, 0, &pCompilePS, NULL);
+    assert(pCompilePS != nullptr);
+    hr = pDevice->CreatePixelShader(pCompilePS->GetBufferPointer(), pCompilePS->GetBufferSize(), NULL, &(shaderBundle[SHADER_TOON].pPixelShader));
+    if (FAILED(hr))
+    {
+        MessageBox(nullptr, L"ピクセルシェーダーの作成に失敗しました", L"エラー", MB_OK);
+        return hr;
+    }
+
+    SAFE_RELEASE(pCompilePS);
+
+    //ラスタライザ作成
+    D3D11_RASTERIZER_DESC rdc = {};
+    rdc.CullMode = D3D11_CULL_BACK;
+    rdc.FillMode = D3D11_FILL_SOLID;
+    rdc.FrontCounterClockwise = FALSE;
+    pDevice->CreateRasterizerState(&rdc, &(shaderBundle[SHADER_3D].pRasterizerState));
     return S_OK;
 }
 

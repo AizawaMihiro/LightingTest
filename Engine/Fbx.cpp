@@ -205,6 +205,59 @@ void Fbx::DrawPseudoNormal(Transform& transform)
 	}
 }
 
+void Fbx::DrawToon(Transform& transform)
+{
+	Direct3D::SetShader(SHADER_TYPE::SHADER_TOON);
+	transform.Calclation();
+
+	//頂点バッファ
+	UINT stride = sizeof(VERTEX);
+	UINT offset = 0;
+	Direct3D::pContext->IASetVertexBuffers(0, 1, &pVertexBuffer_, &stride, &offset);
+
+	for (int i = 0; i < materialCount_; i++)
+	{
+		CONSTANT_BUFFER cb;
+		cb.matWVP = transform.GetWorldMatrix() * Camera::GetViewMatrix() * Camera::GetProjectionMatrix();
+		cb.matNormal = transform.GetNormalMatrix();
+		cb.matWorld = transform.GetWorldMatrix();
+		//コンスタントバッファにデータ転送
+		cb.ambient = pMaterialList_[i].ambient;
+		cb.specular = pMaterialList_[i].specular;
+		cb.shininess = { pMaterialList_[i].shininess, pMaterialList_[i].shininess, pMaterialList_[i].shininess, pMaterialList_[i].shininess };
+		cb.diffuse = pMaterialList_[i].diffuse;
+		cb.diffuseFactor = pMaterialList_[i].factor;
+		cb.materialFlag = pMaterialList_[i].pTexture != nullptr;
+
+		D3D11_MAPPED_SUBRESOURCE pdata;
+		Direct3D::pContext->Map(pConstantBuffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &pdata);	// GPUからのリソースアクセスを一時止める
+		memcpy_s(pdata.pData, pdata.RowPitch, (void*)(&cb), sizeof(cb));	// データ値を送る
+		Direct3D::pContext->Unmap(pConstantBuffer_, 0);	//再開
+
+		// インデックスバッファーをセット
+		stride = sizeof(int);
+		offset = 0;
+		Direct3D::pContext->IASetIndexBuffer(pIndexBuffer_[i], DXGI_FORMAT_R32_UINT, 0);
+
+		//コンスタントバッファ
+		Direct3D::pContext->VSSetConstantBuffers(0, 1, &pConstantBuffer_);	//頂点シェーダー用	
+		Direct3D::pContext->PSSetConstantBuffers(0, 1, &pConstantBuffer_);	//ピクセルシェーダー用
+
+
+		if (pMaterialList_[i].pTexture)
+		{
+			ID3D11SamplerState* pSampler = pMaterialList_[i].pTexture->GetSampler();
+			Direct3D::pContext->PSSetSamplers(0, 1, &pSampler);
+
+			ID3D11ShaderResourceView* pSRV = pMaterialList_[i].pTexture->GetSRV();
+			Direct3D::pContext->PSSetShaderResources(0, 1, &pSRV);
+		}
+
+		Direct3D::pContext->DrawIndexed(indexCount_[i], 0, 0);
+	}
+	Direct3D::SetShader(SHADER_TYPE::SHADER_3D);
+}
+
 void Fbx::Release()
 {/*
 	SAFE_RELEASE(pVertexBuffer_);

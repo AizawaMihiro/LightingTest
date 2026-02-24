@@ -78,6 +78,7 @@ public:
 	HRESULT Load(std::string fileName);
 	void    Draw(Transform& transform);
 	void	DrawPseudoNormal(Transform& transform);
+	void    DrawToon(Transform& transform);
 	void    Release();
 
 	void InitVertex(FbxMesh* mesh);
