@@ -398,7 +398,7 @@ void Fbx::InitMaterial(FbxNode* pNode)
 				pMaterialList_[i].pTexture = nullptr;
 			}
 			//ノーマルマップのテクスチャも読み込む
-			fs::path normalTexturePath = "NormalMap.png";//固定で読み込み
+			fs::path normalTexturePath = "BoxNormalMap.png";//固定で読み込み
 			if (fs::is_regular_file(normalTexturePath))
 			{
 				pMaterialList_[i].pNormalTexture = new Texture;
