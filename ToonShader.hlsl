@@ -3,6 +3,8 @@
 //───────────────────────────────────────
 Texture2D g_texture : register(t0); //テクスチャー
 SamplerState g_sampler : register(s0); //サンプラー
+Texture2D g_toontexture : register(t1); //テクスチャー
+SamplerState g_toonsampler : register(s1); //サンプラー
 
 //───────────────────────────────────────
 // コンスタントバッファ
@@ -119,33 +121,44 @@ float4 PS(VS_OUT inData) : SV_Target
         diffuseTerm = diffuse * dTerm;
         ambientTerm = ambientFactor * diffuseColor;
     }
+    
+    float2 toonUV = float2(ndotl, 0.0f); //ndotlをUV座標に変換
+    float4 toonColor = g_toontexture.Sample(g_toonsampler, toonUV); //トゥーンテクスチャから色をサンプリング
+    
+    
+    diffuseTerm *= toonColor;
+    ambientTerm = ambientFactor;
+    
+    color = diffuseTerm + specularCol + ambientTerm;
+    
     //color = diffuseTerm + specularTerm + ambientTerm;
     //color = float4(ndotl, ndotl, ndotl, 1.0);
-    if (ndotl > (float) 3 / 4)
-    {
-        color = float4(1, 1, 1, 1);
-    }
-    else if (ndotl > (float) 2 / 4)
-    {
-        color = float4(0.8, 0.8, 0.8, 1);
-    }
-    else if (ndotl > (float) 1 / 4)
-    {
-        color = float4(0.4, 0.4, 0.4, 1);
-    }
-    else 
-    {
-        color = float4(0.3, 0.3, 0.3, 1);
-    }
+    //if (ndotl > (float) 3 / 4)
+    //{
+    //    color = float4(1, 1, 1, 1);
+    //}
+    //else if (ndotl > (float) 2 / 4)
+    //{
+    //    color = float4(0.8, 0.8, 0.8, 1);
+    //}
+    //else if (ndotl > (float) 1 / 4)
+    //{
+    //    color = float4(0.4, 0.4, 0.4, 1);
+    //}
+    //else 
+    //{
+    //    color = float4(0.3, 0.3, 0.3, 1);
+    //}
     
     //縁取りの計算
     float3 Vvec = normalize(-inData.eyev.xyz);
-    float3 Nvec = normalize(-inData.normal.xyz);
+    float3 Nvec = normalize(inData.normal.xyz);
     float VdotN = abs(dot(Nvec, Vvec));
     if (VdotN < 0.2)
     {
         color = float4(0, 0, 0, 1);
     }
-    return color * (diffuseTerm + specularTerm) + ambientTerm;
+    
+    return color * diffuseTerm + specularCol + ambientTerm;
     
 }

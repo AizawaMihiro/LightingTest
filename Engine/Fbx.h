@@ -72,6 +72,7 @@ class Fbx
 
 	std::vector<VERTEX> pVertices_;//頂点データ
 	std::vector<std::vector<int>> pIndex_;//マテリアルごとのインデックスデータ
+	Texture* pToonTexture_;
 	
 public:
 	Fbx();
