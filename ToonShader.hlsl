@@ -127,15 +127,25 @@ float4 PS(VS_OUT inData) : SV_Target
     }
     else if (ndotl > (float) 2 / 4)
     {
-        color = float4(0.7, 0.7, 0.7, 1);
+        color = float4(0.8, 0.8, 0.8, 1);
     }
     else if (ndotl > (float) 1 / 4)
     {
-        color = float4(0.3, 0.3, 0.3, 1);
+        color = float4(0.4, 0.4, 0.4, 1);
     }
     else 
     {
+        color = float4(0.3, 0.3, 0.3, 1);
+    }
+    
+    //âèéÊÇËÇÃåvéZ
+    float3 Vvec = normalize(-inData.eyev.xyz);
+    float3 Nvec = normalize(-inData.normal.xyz);
+    float VdotN = abs(dot(Nvec, Vvec));
+    if (VdotN < 0.2)
+    {
         color = float4(0, 0, 0, 1);
     }
-    return color;
+    return color * (diffuseTerm + specularTerm) + ambientTerm;
+    
 }

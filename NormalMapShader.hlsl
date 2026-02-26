@@ -138,4 +138,6 @@ float4 PS(VS_OUT inData) : SV_Target
     }
     color = diffuseTerm + specularTerm + ambientTerm;
     return color;
+    //float3 NC = normalize(inData.normal.xyz);
+    //return float4(NC * 0.5 + 0.5, 1); // –@ü‰Â‹‰»
 }

@@ -29,12 +29,13 @@ void Stage::Initialize()
 	InitConstantBuffer();
 	hRoom_ = Model::Load("Room.fbx");
 	assert(hRoom_ >= 0);
+	//hDonut_ = Model::Load("Donut.fbx");
 	hDonut_ = Model::Load("SharderBox.fbx");
 	assert(hDonut_ >= 0);
 	hBall_ = Model::Load("Ball.fbx");
 	assert(hBall_ >= 0);
-	hFloor_ = Model::Load("FloorColor.fbx");
-	assert(hFloor_ >= 0);
+	//hFloor_ = Model::Load("FloorColor.fbx");
+	//assert(hFloor_ >= 0);
 
 	Camera::SetPosition(XMVectorSet(0.0f, 0.0f, -3.0f, 0.0f));
 	Camera::SetTarget(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f));
@@ -114,7 +115,7 @@ void Stage::Draw()
 	tDonut.scale_ = { 0.5f,0.5f,0.5f };
 	tDonut.rotate_.y += 1.0f;
 	Model::SetTransform(hDonut_, tDonut);
-	Model::DrawToon(hDonut_);
+	Model::DrawPseudoNormal(hDonut_);
 
 	//Transform tFloor;
 	//tFloor.position_ = { 0.0f,0.1f,0.0f };
