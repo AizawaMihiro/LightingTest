@@ -70,13 +70,14 @@ HRESULT Fbx::Load(std::string fileName)
 	InitConstantBuffer();	//コンスタントバッファ準備
 	InitMaterial(pNode);	//マテリアル準備
 
+	//toonテクスチャの読み込み
+	pToonTexture_ = new Texture();
+	pToonTexture_->Load("toon.png");
+
 	fs::current_path(basePath);	//カレントディレクトリを元に戻す
 
 	//マネージャ解放
 	pFbxManager->Destroy();
-
-	pToonTexture_ = new Texture();
-	pToonTexture_->Load("toon.png");
 
 	return S_OK;
 }
