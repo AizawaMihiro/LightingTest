@@ -201,9 +201,9 @@ void Fbx::DrawPseudoNormal(Transform& transform)
 		//ノーマルマップのテクスチャがあればセット
 		if (pMaterialList_[i].pNormalTexture)
 		{
-			ID3D11SamplerState* pSampler = pMaterialList_[i].pTexture->GetSampler();
+			ID3D11SamplerState* pSampler = pMaterialList_[i].pNormalTexture->GetSampler();
 			Direct3D::pContext->PSSetSamplers(1, 1, &pSampler);
-			ID3D11ShaderResourceView* pSRV = pMaterialList_[i].pTexture->GetSRV();
+			ID3D11ShaderResourceView* pSRV = pMaterialList_[i].pNormalTexture->GetSRV();
 			Direct3D::pContext->PSSetShaderResources(1, 1, &pSRV);
 		}
 

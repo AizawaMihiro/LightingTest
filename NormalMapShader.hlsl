@@ -89,7 +89,7 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL, f
 float4 PS(VS_OUT inData) : SV_Target
 {
     //法線マップから法線を取得
-    float3 normalMap = g_normalmap.Sample(g_normalSample, inData.uv).xyz;//転写未遂
+    float3 normalMap = g_normalmap.Sample(g_normalSample, inData.uv).xyz;
     
     float3 T = normalize(inData.tangent.xyz);
     float3 B = normalize(inData.binormal.xyz);
@@ -140,4 +140,6 @@ float4 PS(VS_OUT inData) : SV_Target
     return color;
     //float3 NC = normalize(inData.normal.xyz);
     //return float4(NC * 0.5 + 0.5, 1); // 法線可視化
+    //return float4 (normalMap, 1.0); // 法線マップの可視化
+    //return float4(wNormal * 0.5 + 0.5, 1); // 法線ベクトルの可視化
 }
