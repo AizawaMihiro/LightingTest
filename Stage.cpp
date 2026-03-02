@@ -27,13 +27,13 @@ Stage::~Stage()
 void Stage::Initialize()
 {
 	InitConstantBuffer();
-	hRoom_ = Model::Load("Room.fbx");
-	assert(hRoom_ >= 0);
+	//hRoom_ = Model::Load("Room.fbx");
+	//assert(hRoom_ >= 0);
 	hDonut_ = Model::Load("SharderBox.fbx");
 	assert(hDonut_ >= 0);
 	hBall_ = Model::Load("Ball.fbx");
 	assert(hBall_ >= 0);
-	hFloor_ = Model::Load("FloorColor.fbx");
+	hFloor_ = Model::Load("Wave.fbx");
 	assert(hFloor_ >= 0);
 
 	Camera::SetPosition(XMVectorSet(0.0f, 0.0f, -3.0f, 0.0f));
@@ -78,10 +78,15 @@ void Stage::Update()
 		Direct3D::SetLightPos(pos);
 	}
 
+	static float scrollx = 0.0f;
+
 	//コンスタントバッファ用データ作成
 	CONSTANTBUFFER_STAGE cb;
 	cb.lightPos = Direct3D::GetLightPos();
 	XMStoreFloat4(&cb.eyePos, Camera::GetPosition());
+
+	cb.scroll = { scrollx,0.0f,0.0f,0.0f };
+	scrollx += 0.001f;//スクロール値を少しずつ増やす
 
 	//コンスタントバッファにデータ転送
 	D3D11_MAPPED_SUBRESOURCE pdata;
@@ -102,12 +107,12 @@ void Stage::Draw()
 	Model::SetTransform(hBall_, t);
 	Model::Draw(hBall_);
 
-	Transform tRoom;
-	tRoom.position_ = { 0.0f,0.0f,0.0f };
-	tRoom.scale_ = { 1.5f,1.5f,1.5f };
-	tRoom.rotate_ = { 0.0f,180.0f,0.0f };
-	Model::SetTransform(hRoom_, tRoom);
-	Model::Draw(hRoom_);
+	//Transform tRoom;
+	//tRoom.position_ = { 0.0f,0.0f,0.0f };
+	//tRoom.scale_ = { 1.5f,1.5f,1.5f };
+	//tRoom.rotate_ = { 0.0f,180.0f,0.0f };
+	//Model::SetTransform(hRoom_, tRoom);
+	//Model::Draw(hRoom_);
 
 	static Transform tDonut;
 	tDonut.position_ = { 0.0f,-0.5f,0.0f };
@@ -117,10 +122,10 @@ void Stage::Draw()
 	Model::Draw(hDonut_);
 
 	Transform tFloor;
-	tFloor.position_ = { 0.0f,0.1f,0.0f };
-	tFloor.scale_ = { 0.5f,0.5f,0.5f };
+	tFloor.position_ = { 0.0f,-1.0f,0.0f };
+	tFloor.scale_ = { 5.0f,5.0f,5.0f };
 	Model::SetTransform(hFloor_, tFloor);
-	Model::Draw(hFloor_);
+	Model::DrawPseudoNormal(hFloor_);
 
 	//Model::SetTransform(hModel, t);
 	//Model::Draw(hModel);
@@ -145,9 +150,9 @@ void Stage::Draw()
 	ImGui::Text("Light Pos: X:%f", Direct3D::GetLightPos().x);
 	ImGui::Text("Light Pos: Y:%f", Direct3D::GetLightPos().y);
 	ImGui::Text("Light Pos: Z:%f", Direct3D::GetLightPos().z);
-	ImGui::Text("Room Pos: X:%f", tRoom.position_.x);
-	ImGui::Text("Room Pos: Y:%f", tRoom.position_.y);
-	ImGui::Text("Room Pos: Z:%f", tRoom.position_.z);
+	//ImGui::Text("Room Pos: X:%f", tRoom.position_.x);
+	//ImGui::Text("Room Pos: Y:%f", tRoom.position_.y);
+	//ImGui::Text("Room Pos: Z:%f", tRoom.position_.z);
 	ImGui::End();
 
 }

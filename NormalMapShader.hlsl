@@ -27,6 +27,7 @@ cbuffer gStage : register(b1)
 {
     float4 lightPosisiton; //ライトの位置
     float4 eyePosition; //カメラの位置
+    float4 scroll; //スクロール値
 };
 
 //───────────────────────────────────────
@@ -89,7 +90,9 @@ VS_OUT VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL, f
 float4 PS(VS_OUT inData) : SV_Target
 {
     //法線マップから法線を取得
-    float3 normalMap = g_normalmap.Sample(g_normalSample, inData.uv).xyz;//転写未遂
+    float2 uvN = inData.uv + float2(scroll.x, 0.0f); //スクロール値を加算してUV座標を更新
+    float3 normalMap = g_normalmap.Sample(g_normalSample, uvN).rgb;
+    float3 normalTangentSpace = normalMap * 2.0f - 1.0f; //法線マップの値を[-1, 1]の範囲に変換
     
     float3 T = normalize(inData.tangent.xyz);
     float3 B = normalize(inData.binormal.xyz);

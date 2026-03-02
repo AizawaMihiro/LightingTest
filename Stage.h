@@ -24,6 +24,7 @@ struct CONSTANTBUFFER_STAGE
 {
 	XMFLOAT4 lightPos;//ライトの位置
 	XMFLOAT4 eyePos;//視点の位置
+	XMFLOAT4 scroll;//スクロール値
 };
 
 class Stage :
