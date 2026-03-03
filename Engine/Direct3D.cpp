@@ -272,7 +272,7 @@ HRESULT Direct3D::InitToonShader()
     rdc.CullMode = D3D11_CULL_BACK;
     rdc.FillMode = D3D11_FILL_SOLID;
     rdc.FrontCounterClockwise = FALSE;
-    pDevice->CreateRasterizerState(&rdc, &(shaderBundle[SHADER_3D].pRasterizerState));
+    pDevice->CreateRasterizerState(&rdc, &(shaderBundle[SHADER_TOON].pRasterizerState));
     return S_OK;
 }
 
@@ -324,10 +324,10 @@ HRESULT Direct3D::InitOutlineShader()
 
     //ラスタライザ作成
     D3D11_RASTERIZER_DESC rdc = {};
-    rdc.CullMode = D3D11_CULL_BACK;
+    rdc.CullMode = D3D11_CULL_FRONT;
     rdc.FillMode = D3D11_FILL_SOLID;
     rdc.FrontCounterClockwise = FALSE;
-    pDevice->CreateRasterizerState(&rdc, &(shaderBundle[SHADER_3D].pRasterizerState));
+    pDevice->CreateRasterizerState(&rdc, &(shaderBundle[SHADER_OUTLINE].pRasterizerState));
     return S_OK;
 }
 
