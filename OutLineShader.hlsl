@@ -35,20 +35,22 @@ cbuffer gStage : register(b1)
 //今回は使わない
 struct VS_OUT
 {
-    float4 wpos : POSITION0; //ワールド座標
     float4 spos : SV_POSITION; //スクリーン座標
     float2 uv : TEXCOORD; //UV座標
     float4 normal : NORMAL; //法線ベクトル
-    float4 eyev : POSITION1; //視線ベクトル
+    float4 color : COLOR; //頂点カラー
 };
 
 //───────────────────────────────────────
 // 頂点シェーダ
 //───────────────────────────────────────
-float4 VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL)
+float4 VS(float4 pos : POSITION, float4 uv : TEXCOORD, float4 normal : NORMAL) : SV_Position
 {
 	//ピクセルシェーダーへ渡す情報
     float4  outPos;
+    
+    normal.w = 0.0f; //法線ベクトルのw成分は0にしておく
+    //normal = normalize(normal);
     
     pos = pos + normal * 0.05f; //法線方向に少し頂点を移動させる
     
