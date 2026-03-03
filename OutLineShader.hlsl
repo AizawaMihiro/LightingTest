@@ -35,10 +35,10 @@ cbuffer gStage : register(b1)
 //今回は使わない
 struct VS_OUT
 {
-    float4 spos : SV_POSITION; //スクリーン座標
+    float4 pos : SV_POSITION; //位置
     float2 uv : TEXCOORD; //UV座標
-    float4 normal : NORMAL; //法線ベクトル
-    float4 color : COLOR; //頂点カラー
+    float4 color : COLOR; //色（明るさ）
+    float4 normal : NORMAL;
 };
 
 //───────────────────────────────────────
